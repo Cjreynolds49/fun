@@ -32,7 +32,7 @@ const resetPeep = ({ stage, peep }) => {
   const startY = stage.height - peep.height + offsetY
   let startX
   let endX
-  
+
   if (direction === 1) {
     startX = -peep.width
     endX = stage.width
@@ -42,11 +42,11 @@ const resetPeep = ({ stage, peep }) => {
     endX = 0
     peep.scaleX = -1
   }
-  
+
   peep.x = startX
   peep.y = startY
   peep.anchorY = startY
-  
+
   return {
     startX,
     startY,
@@ -63,7 +63,7 @@ const normalWalk = ({ peep, props }) => {
 
   const xDuration = 10
   const yDuration = 0.25
-  
+
   const tl = gsap.timeline()
   tl.timeScale(randomRange(0.5, 1.5))
   tl.to(peep, {
@@ -77,7 +77,7 @@ const normalWalk = ({ peep, props }) => {
     yoyo: true,
     y: startY - 10
   }, 0)
-    
+
   return tl
 }
 
@@ -94,27 +94,27 @@ class Peep {
   }) {
     this.image = image
     this.setRect(rect)
-    
+
     this.x = 0
     this.y = 0
     this.anchorY = 0
     this.scaleX = 1
     this.walk = null
   }
-  
-  setRect (rect) {
+
+  setRect(rect) {
     this.rect = rect
     this.width = rect[2]
     this.height = rect[3]
-    
+
     this.drawArgs = [
       this.image,
       ...rect,
       0, 0, this.width, this.height
-    ]  
+    ]
   }
-  
-  render (ctx) {
+
+  render(ctx) {
     ctx.save()
     ctx.translate(this.x, this.y)
     ctx.scale(this.scaleX, 1)
@@ -141,9 +141,9 @@ const allPeeps = []
 const availablePeeps = []
 const crowd = []
 
-function init () {  
+function init() {
   createPeeps()
-  
+
   // resize also (re)populates the stage
   resize()
 
@@ -151,7 +151,7 @@ function init () {
   window.addEventListener('resize', resize)
 }
 
-function createPeeps () {
+function createPeeps() {
   const {
     rows,
     cols
@@ -163,7 +163,7 @@ function createPeeps () {
   const total = rows * cols
   const rectWidth = width / rows
   const rectHeight = height / cols
-  
+
   for (let i = 0; i < total; i++) {
     allPeeps.push(new Peep({
       image: img,
@@ -174,34 +174,34 @@ function createPeeps () {
         rectHeight,
       ]
     }))
-  }  
+  }
 }
 
-function resize () {
+function resize() {
   stage.width = canvas.clientWidth
   stage.height = canvas.clientHeight
   canvas.width = stage.width * devicePixelRatio
   canvas.height = stage.height * devicePixelRatio
-  
+
   crowd.forEach((peep) => {
     peep.walk.kill()
   })
-  
+
   crowd.length = 0
   availablePeeps.length = 0
   availablePeeps.push(...allPeeps)
-  
+
   initCrowd()
 }
 
-function initCrowd () {
+function initCrowd() {
   while (availablePeeps.length) {
     // setting random tween progress spreads the peeps out
     addPeepToCrowd().walk.progress(Math.random())
   }
 }
 
-function addPeepToCrowd () {
+function addPeepToCrowd() {
   const peep = removeRandomFromArray(availablePeeps)
   const walk = getRandomFromArray(walks)({
     peep,
@@ -213,28 +213,28 @@ function addPeepToCrowd () {
     removePeepFromCrowd(peep)
     addPeepToCrowd()
   })
-  
+
   peep.walk = walk
-  
+
   crowd.push(peep)
   crowd.sort((a, b) => a.anchorY - b.anchorY)
-  
+
   return peep
 }
 
-function removePeepFromCrowd (peep) {
+function removePeepFromCrowd(peep) {
   removeItemFromArray(crowd, peep)
   availablePeeps.push(peep)
 }
 
-function render () {
+function render() {
   canvas.width = canvas.width
   ctx.save()
   ctx.scale(devicePixelRatio, devicePixelRatio)
-  
+
   crowd.forEach((peep) => {
     peep.render(ctx)
   })
-  
+
   ctx.restore()
 }
